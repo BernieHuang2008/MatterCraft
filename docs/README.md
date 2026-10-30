@@ -2,7 +2,7 @@
 
 ## 文档导航
 
-MatterCraft 采用文档优先的开发方式。所有代码修改前，需要先阅读本目录下与修改内容相关的文档，并在实现时遵守对应规范。
+MatterCraft 采用文档优先的开发方式。所有代码修改前，都需要先阅读本目录下与修改内容相关的文档，并在实现时遵守对应规范。
 
 当前文档结构：
 
@@ -16,6 +16,10 @@ MatterCraft 采用文档优先的开发方式。所有代码修改前，需要�
 - `matter_core/preset_database/atompresetdatabase.md`：AtomPresetDatabase 字段与 CSV 规范。
 - `matter_core/todo.md`：核心物质表示层的待讨论问题。
 - `debug_module/README.md`：Debug 模块专用规范与设计要求。
+- `visualizer/atom.md`：`visualize atom` 设计草案。
+- `visualizer/molecule.md`：`visualize molecule` 设计草案。
+- `visualizer/matter.md`：`visualize matter` 设计草案。
+- `visualizer/mixture.md`：`visualize mixture` 设计草案。
 
 ## 开发前检查
 
@@ -25,4 +29,5 @@ MatterCraft 采用文档优先的开发方式。所有代码修改前，需要�
 2. 阅读 `dev_note/README.md`，确认项目核心结构和基础约束。
 3. 若修改涉及核心物质表示、对象结构、反应推断基础数据，必须阅读 `matter_core/README.md`。
 4. 若修改涉及日志、调试窗口或 debug 参数，必须阅读 `debug_module/README.md`。
-5. 在对应函数或 class 的注释中写明实现逻辑，保持代码与文档同步。
+5. 若修改涉及可视化模块，必须阅读 `visualizer/` 下对应对象层级的草案文档。
+6. 在对应函数或 class 的注释中写明实现逻辑，保持代码与文档同步。

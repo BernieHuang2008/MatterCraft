@@ -15,6 +15,18 @@ from matter_core.core_classes.matter import MatterLogic
 from matter_core.core_classes.matter_intmol_interaction import MatterIntmolInteractionLogic
 from matter_core.core_classes.mixture import MixtureComponentLogic, MixtureLogic
 from matter_core.core_classes.molecule import MoleculeLogic
+from visualizer import (
+    AtomVisualizer,
+    AtomVisualizerRequest,
+    MatterVisualizer,
+    MatterVisualizerRequest,
+    MixtureVisualizer,
+    MixtureVisualizerRequest,
+    MoleculeVisualizer,
+    MoleculeVisualizerRequest,
+    VISUALIZER_MODE_STRUCTURAL,
+    openWebglVisualizerWindow,
+)
 
 
 def build_demo_model() -> dict[str, object]:
@@ -162,18 +174,19 @@ def publish_runtime_state(model: dict[str, object], debug_enabled: bool) -> None
     )
 
 
-def build_main_window(root: tk.Tk, debug_enabled: bool) -> None:
+def build_main_window(root: tk.Tk, debug_enabled: bool, model: dict[str, object]) -> None:
     """
     Function:
         Build the simple bootstrap main window.
     Args:
         root: Tk root window.
         debug_enabled: Whether debug mode is enabled.
+        model: Demo model object map used by visualizer launch buttons.
     Returns:
         None.
     Implementation Logic:
-        The first main window is intentionally small and only demonstrates that
-        the core classes and debug window can be initialized together.
+        The main window exposes the bootstrap status and four visualizer launch
+        buttons backed by the current in-memory demo model.
     """
 
     root.title("MatterCraft")
@@ -197,6 +210,118 @@ def build_main_window(root: tk.Tk, debug_enabled: bool) -> None:
         font=("Consolas", 10),
     ).pack(anchor=tk.W, pady=(8, 0))
 
+    button_frame = ttk.Frame(frame)
+    button_frame.pack(anchor=tk.W, pady=(24, 0))
+
+    ttk.Button(
+        button_frame,
+        text="Visualize Atom",
+        command=lambda: open_atom_visualizer(root=root, model=model),
+    ).grid(row=0, column=0, padx=(0, 8), pady=(0, 8), sticky=tk.W)
+    ttk.Button(
+        button_frame,
+        text="Visualize Molecule",
+        command=lambda: open_molecule_visualizer(root=root, model=model),
+    ).grid(row=0, column=1, padx=(0, 8), pady=(0, 8), sticky=tk.W)
+    ttk.Button(
+        button_frame,
+        text="Visualize Matter",
+        command=lambda: open_matter_visualizer(root=root, model=model),
+    ).grid(row=1, column=0, padx=(0, 8), sticky=tk.W)
+    ttk.Button(
+        button_frame,
+        text="Visualize Mixture",
+        command=lambda: open_mixture_visualizer(root=root, model=model),
+    ).grid(row=1, column=1, padx=(0, 8), sticky=tk.W)
+
+
+def open_atom_visualizer(root: tk.Misc, model: dict[str, object]) -> None:
+    """
+    Function:
+        Open the atom visualizer window from the main UI.
+    Args:
+        root: Parent Tk root.
+        model: Demo model object map.
+    Returns:
+        None.
+    Implementation Logic:
+        The bootstrap demo uses oxygen so the atom visualizer immediately shows
+        a meaningful core, subshell and orbital-box structure.
+    """
+
+    openWebglVisualizerWindow(
+        title="MatterCraft Visualizer - Atom",
+        sourceObject=model["oxygen"],
+        visualizer=AtomVisualizer(),
+        request=AtomVisualizerRequest(bMode=VISUALIZER_MODE_STRUCTURAL, bSelectedSubshell="2p"),
+    )
+
+
+def open_molecule_visualizer(root: tk.Misc, model: dict[str, object]) -> None:
+    """
+    Function:
+        Open the molecule visualizer window from the main UI.
+    Args:
+        root: Parent Tk root.
+        model: Demo model object map.
+    Returns:
+        None.
+    Implementation Logic:
+        The bootstrap water molecule provides selectable atom and bond nodes for
+        the first molecule visualizer interaction pass.
+    """
+
+    openWebglVisualizerWindow(
+        title="MatterCraft Visualizer - Molecule",
+        sourceObject=model["waterMolecule"],
+        visualizer=MoleculeVisualizer(),
+        request=MoleculeVisualizerRequest(bMode=VISUALIZER_MODE_STRUCTURAL),
+    )
+
+
+def open_matter_visualizer(root: tk.Misc, model: dict[str, object]) -> None:
+    """
+    Function:
+        Open the matter visualizer window from the main UI.
+    Args:
+        root: Parent Tk root.
+        model: Demo model object map.
+    Returns:
+        None.
+    Implementation Logic:
+        The bootstrap matter object includes a molecule and interaction so both
+        matter-level selection paths can be inspected.
+    """
+
+    openWebglVisualizerWindow(
+        title="MatterCraft Visualizer - Matter",
+        sourceObject=model["waterMatter"],
+        visualizer=MatterVisualizer(),
+        request=MatterVisualizerRequest(bMode=VISUALIZER_MODE_STRUCTURAL),
+    )
+
+
+def open_mixture_visualizer(root: tk.Misc, model: dict[str, object]) -> None:
+    """
+    Function:
+        Open the mixture visualizer window from the main UI.
+    Args:
+        root: Parent Tk root.
+        model: Demo model object map.
+    Returns:
+        None.
+    Implementation Logic:
+        The bootstrap mixture object starts with one selectable component and is
+        ready for multi-component scenes when the model grows.
+    """
+
+    openWebglVisualizerWindow(
+        title="MatterCraft Visualizer - Mixture",
+        sourceObject=model["waterMixture"],
+        visualizer=MixtureVisualizer(),
+        request=MixtureVisualizerRequest(bMode=VISUALIZER_MODE_STRUCTURAL),
+    )
+
 
 def main() -> None:
     """
@@ -214,8 +339,8 @@ def main() -> None:
     debug_enabled = any(argument.lower() == "debug" for argument in sys.argv[1:])
     root = tk.Tk()
     DEBUG_MANAGER.configure(enable_window=debug_enabled, root=root)
-    build_main_window(root=root, debug_enabled=debug_enabled)
     model = build_demo_model()
+    build_main_window(root=root, debug_enabled=debug_enabled, model=model)
     publish_runtime_state(model=model, debug_enabled=debug_enabled)
     log(level="info", module="logic.bootstrap", message="MatterCraft bootstrap initialized.")
     root.mainloop()
